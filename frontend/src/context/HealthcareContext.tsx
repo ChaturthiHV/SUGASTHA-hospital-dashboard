@@ -41,6 +41,12 @@ interface FallbackTimerState {
 }
 
 interface HealthcareContextType {
+  isAuthenticated: boolean;
+  login: (id: string, pass: string) => boolean;
+  logout: () => void;
+  // Dashboard Tab Navigation
+  activeTab: 'OPD' | 'IPD' | 'DOCTORS' | 'TELECONSULT' | 'ANALYTICS';
+  setActiveTab: (tab: 'OPD' | 'IPD' | 'DOCTORS' | 'TELECONSULT' | 'ANALYTICS') => void;
   // Navigation & UI Settings
   portal: PortalType;
   setPortal: (p: PortalType) => void;
@@ -122,6 +128,25 @@ interface HealthcareContextType {
 const HealthcareContext = createContext<HealthcareContextType | undefined>(undefined);
 
 export const HealthcareProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  // Authentication
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+
+  const login = useCallback((id: string, pass: string) => {
+    // Hardcoded credentials based on user's preference
+    if (id === 'admin' && pass === 'password123') {
+      setIsAuthenticated(true);
+      return true;
+    }
+    return false;
+  }, []);
+
+  const logout = useCallback(() => {
+    setIsAuthenticated(false);
+  }, []);
+
+  // Dashboard Tab State
+  const [activeTab, setActiveTab] = useState<'OPD' | 'IPD' | 'DOCTORS' | 'TELECONSULT' | 'ANALYTICS'>('OPD');
+
   // Navigation & Settings
   const [portal, setPortal] = useState<PortalType>('hospital');
   const [lang, setLang] = useState<Language>('en');
@@ -744,6 +769,11 @@ export const HealthcareProvider: React.FC<{ children: ReactNode }> = ({ children
   return (
     <HealthcareContext.Provider
       value={{
+        isAuthenticated,
+        login,
+        logout,
+        activeTab,
+        setActiveTab,
         portal,
         setPortal,
         lang,

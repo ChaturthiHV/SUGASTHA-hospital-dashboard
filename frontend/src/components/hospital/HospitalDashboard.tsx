@@ -24,10 +24,11 @@ export const HospitalDashboard: React.FC = () => {
     setCurrentHospitalId,
     acceptAppointment,
     rejectAppointmentAndEscalate,
-    submitDoctorConsultation
+    submitDoctorConsultation,
+    activeTab,
+    setActiveTab
   } = useHealthcare();
 
-  const [activeTab, setActiveTab] = useState<'OPD' | 'IPD' | 'DOCTORS' | 'TELECONSULT' | 'ANALYTICS'>('OPD');
   const [activeTeleconsult, setActiveTeleconsult] = useState<string | null>(null);
 
   const activeHospital = hospitals.find(h => h.id === currentHospitalId) || hospitals[0];
@@ -70,28 +71,8 @@ export const HospitalDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="flex overflow-x-auto gap-2 mb-8 pb-2">
-        {[
-          { id: 'OPD', label: 'OPD Queue', icon: <Users className="w-4 h-4" /> },
-          { id: 'IPD', label: 'Bed Management', icon: <Bed className="w-4 h-4" /> },
-          { id: 'DOCTORS', label: 'Doctor Roster', icon: <Stethoscope className="w-4 h-4" /> },
-          { id: 'TELECONSULT', label: 'Telemedicine Desk', icon: <Video className="w-4 h-4" /> },
-          { id: 'ANALYTICS', label: 'Analytics', icon: <BarChart className="w-4 h-4" /> }
-        ].map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
-            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm whitespace-nowrap transition-all ${
-              activeTab === tab.id 
-                ? 'bg-emerald-600 text-white shadow-lg' 
-                : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
-            }`}
-          >
-            {tab.icon} {tab.label}
-          </button>
-        ))}
-      </div>
+
+
 
       {/* Main Content Area */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 min-h-[500px]">

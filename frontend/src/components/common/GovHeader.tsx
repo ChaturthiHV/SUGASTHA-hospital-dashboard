@@ -1,40 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import { useHealthcare } from '../../context/HealthcareContext';
-import { PortalType } from '../../types';
 import {
-  Building2,
-  User,
+  Menu,
+  X,
+  Activity,
+  Clock,
+  ShieldCheck,
+  LogOut,
+  Bed,
   Users,
-  PhoneCall,
-  Sliders,
-  Split,
+  Stethoscope,
+  Video,
+  BarChart,
+  ChevronRight,
   Volume2,
   VolumeX,
   Contrast,
-  Clock,
-  ShieldCheck,
-  Activity,
-  HeartPulse
+  Settings
 } from 'lucide-react';
 
 export const GovHeader: React.FC = () => {
   const {
-    portal,
-    setPortal,
-    lang,
-    setLang,
     highContrast,
     setHighContrast,
     fontSize,
     setFontSize,
     soundEnabled,
     setSoundEnabled,
-    appointments,
-    voiceTasks,
-    activeFallback
+    activeFallback,
+    logout,
+    activeTab,
+    setActiveTab,
+    hospitals,
+    currentHospitalId,
+    appointments
   } = useHealthcare();
 
   const [currentTime, setCurrentTime] = useState<string>('');
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   useEffect(() => {
     const update = () => {
@@ -53,223 +57,257 @@ export const GovHeader: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const pendingAppointmentsCount = appointments.filter(a => a.status === 'PENDING_ACCEPTANCE' || a.status === 'ARRIVED').length;
-  const pendingVoiceCount = voiceTasks.filter(v => v.status === 'PENDING_CLAIM').length;
+  const activeHospital = hospitals.find(h => h.id === currentHospitalId) || hospitals[0];
+  const pendingCount = appointments.filter(a => a.status === 'PENDING_ACCEPTANCE').length;
 
-  const navItems: { id: PortalType; label: string; labelHi: string; icon: React.ReactNode; badge?: number; badgeColor?: string }[] = [
-    {
-      id: 'hospital',
-      label: 'Hospital Command',
-      labelHi: 'अस्पताल कमांड',
-      icon: <Building2 className="w-4 h-4" />,
-      badge: pendingAppointmentsCount > 0 ? pendingAppointmentsCount : undefined,
-      badgeColor: 'bg-emerald-500 text-white'
-    },
-    {
-      id: 'patient',
-      label: 'Citizen / Patient App',
-      labelHi: 'नागरिक / रोगी पोर्टल',
-      icon: <User className="w-4 h-4" />
-    },
-    {
-      id: 'asha',
-      label: 'ASHA Sangini & PHC',
-      labelHi: 'आशा संगिनी एवं पीएचसी',
-      icon: <Users className="w-4 h-4" />,
-      badge: pendingVoiceCount > 0 ? pendingVoiceCount : undefined,
-      badgeColor: 'bg-amber-500 text-white'
-    },
-    {
-      id: 'ivr',
-      label: '104 Helpline & Voice STT',
-      labelHi: '104 हेल्पलाइन एवं वॉयस',
-      icon: <PhoneCall className="w-4 h-4" />
-    },
-    {
-      id: 'fallback',
-      label: 'Fallback & Automation Matrix',
-      labelHi: 'ऑटोमेशन एवं फॉलबैक',
-      icon: <Sliders className="w-4 h-4" />,
-      badge: activeFallback ? 1 : undefined,
-      badgeColor: 'bg-rose-500 text-white animate-pulse'
-    },
-    {
-      id: 'splitscreen',
-      label: 'Split-Screen Live Test',
-      labelHi: 'लाइव स्प्लिट स्क्रीन',
-      icon: <Split className="w-4 h-4" />
-    }
+  const menuItems: { id: 'OPD' | 'IPD' | 'DOCTORS' | 'TELECONSULT' | 'ANALYTICS'; label: string; icon: React.ReactNode; desc: string; badge?: number }[] = [
+    { id: 'OPD', label: 'OPD Queue', icon: <Users className="w-5 h-5" />, desc: 'Incoming patients & triage', badge: pendingCount > 0 ? pendingCount : undefined },
+    { id: 'IPD', label: 'Bed Management', icon: <Bed className="w-5 h-5" />, desc: 'Ward, ICU & O₂ beds' },
+    { id: 'DOCTORS', label: 'Doctor Roster', icon: <Stethoscope className="w-5 h-5" />, desc: 'On-duty staff & availability' },
+    { id: 'TELECONSULT', label: 'Telemedicine Desk', icon: <Video className="w-5 h-5" />, desc: 'eSanjeevani remote consults' },
+    { id: 'ANALYTICS', label: 'Analytics', icon: <BarChart className="w-5 h-5" />, desc: 'Load, wait time & reports' }
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
-      {/* 1. Indian Tricolor Ribbon */}
-      <div className="gov-tricolor-bar" />
+    <>
+      <header className="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
+        {/* Indian Tricolor Ribbon */}
+        <div className="h-1 w-full flex">
+          <div className="flex-1 bg-orange-500" />
+          <div className="flex-1 bg-white border-y border-slate-200" />
+          <div className="flex-1 bg-green-700" />
+        </div>
 
-      {/* 2. Top Accessibility & Official MoHFW Metadata Strip */}
-      <div className="bg-slate-900 text-slate-200 text-xs py-1.5 px-4 border-b border-slate-800">
-        <div className="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2">
-          {/* Left: Gov Authority Info */}
+        {/* Main Header Bar */}
+        <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between gap-4">
+          {/* Logo: Govt Emblem + SUGASTHA */}
           <div className="flex items-center gap-3">
-            <span className="font-semibold text-amber-400 tracking-wide">
-              {lang === 'hi' ? 'भारत सरकार | स्वास्थ्य एवं परिवार कल्याण मंत्रालय' : 'GOVERNMENT OF INDIA | Ministry of Health & Family Welfare'}
-            </span>
-            <span className="hidden md:inline text-slate-500">|</span>
-            <span className="hidden md:flex items-center gap-1 text-slate-300">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              ABDM & eSanjeevani Integrated
-            </span>
+            <img
+              src="/gov_emblem.png"
+              alt="Government of India Emblem"
+              className="h-11 w-auto object-contain flex-shrink-0"
+            />
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl font-black tracking-tight text-sky-900">SUGASTHA</h1>
+                <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                  <Activity className="w-2.5 h-2.5 mr-1 text-emerald-600 animate-pulse" />
+                  ABDM LIVE
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-500 font-medium hidden sm:block leading-tight">
+                Ministry of Health & Family Welfare · Hospital Command Center
+              </p>
+            </div>
           </div>
 
-          {/* Right: Live Clock & Accessibility Tools */}
-          <div className="flex items-center gap-4">
-            {/* Live Clock */}
-            <div className="hidden sm:flex items-center gap-1.5 text-slate-300 font-mono text-[11px]">
-              <Clock className="w-3 h-3 text-sky-400" />
+          {/* Center: Fallback Alert */}
+          {activeFallback && (
+            <div className="hidden md:flex items-center gap-2 bg-rose-50 border border-rose-300 px-3 py-1.5 rounded-lg text-rose-800 text-xs animate-pulse">
+              <div className="w-2 h-2 rounded-full bg-rose-600 animate-ping" />
+              <span className="font-bold">Auto-Fallback:</span>
+              <span>{activeFallback.secondsRemaining}s</span>
+            </div>
+          )}
+
+          {/* Right: Clock + Hamburger */}
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-1.5 text-slate-500 font-mono text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5">
+              <Clock className="w-3.5 h-3.5 text-sky-500" />
               <span>{currentTime}</span>
             </div>
 
-            {/* Font Size Adjuster */}
-            <div className="flex items-center bg-slate-800 rounded px-1.5 py-0.5 border border-slate-700">
-              <button
-                onClick={() => setFontSize('normal')}
-                className={`px-1 text-[10px] font-bold ${fontSize === 'normal' ? 'text-amber-400' : 'text-slate-400 hover:text-white'}`}
-                title="Default Font Size"
-              >
-                A-
-              </button>
-              <button
-                onClick={() => setFontSize('large')}
-                className={`px-1 text-xs font-bold ${fontSize === 'large' ? 'text-amber-400' : 'text-slate-400 hover:text-white'}`}
-                title="Large Font Size"
-              >
-                A
-              </button>
-              <button
-                onClick={() => setFontSize('xlarge')}
-                className={`px-1 text-sm font-bold ${fontSize === 'xlarge' ? 'text-amber-400' : 'text-slate-400 hover:text-white'}`}
-                title="Extra Large Font Size"
-              >
-                A+
-              </button>
-            </div>
-
-            {/* High Contrast Toggle */}
             <button
-              onClick={() => setHighContrast(prev => !prev)}
-              className={`p-1 rounded flex items-center gap-1 text-[11px] ${
-                highContrast ? 'bg-amber-400 text-black font-bold' : 'text-slate-300 hover:bg-slate-800'
-              }`}
-              title="Toggle High Contrast"
+              onClick={() => setMenuOpen(prev => !prev)}
+              className="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-700 text-white transition-colors shadow-sm"
+              aria-label="Open menu"
             >
-              <Contrast className="w-3.5 h-3.5" />
-              <span className="hidden lg:inline">{highContrast ? 'Standard' : 'Contrast'}</span>
+              {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
-
-            {/* Audio Toggle */}
-            <button
-              onClick={() => setSoundEnabled(prev => !prev)}
-              className="p-1 text-slate-300 hover:bg-slate-800 rounded flex items-center gap-1 text-[11px]"
-              title={soundEnabled ? 'Audio Alerts Enabled' : 'Audio Muted'}
-            >
-              {soundEnabled ? <Volume2 className="w-3.5 h-3.5 text-emerald-400" /> : <VolumeX className="w-3.5 h-3.5 text-rose-400" />}
-            </button>
-
-            {/* Language Selector */}
-            <div className="flex items-center bg-slate-800 rounded p-0.5 border border-slate-700">
-              <button
-                onClick={() => setLang('en')}
-                className={`px-2 py-0.5 rounded text-[11px] font-medium transition-all ${
-                  lang === 'en' ? 'bg-sky-600 text-white font-bold' : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                English
-              </button>
-              <button
-                onClick={() => setLang('hi')}
-                className={`px-2 py-0.5 rounded text-[11px] font-medium transition-all ${
-                  lang === 'hi' ? 'bg-sky-600 text-white font-bold' : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                हिन्दी
-              </button>
-            </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* 3. Main Brand & Emblem Banner */}
-      <div className="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
-        {/* Logo and National Seal */}
-        <div className="flex items-center gap-3.5">
-          {/* Emblem Stamp */}
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-900 to-sky-950 flex items-center justify-center shadow-md border border-amber-500/30 text-amber-400 flex-shrink-0">
-            <HeartPulse className="w-7 h-7 text-amber-400" />
-          </div>
+      {/* Slide-in Drawer */}
+      {menuOpen && (
+        <div className="fixed inset-0 z-40 flex justify-end">
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setMenuOpen(false)} />
 
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl md:text-2xl font-black tracking-tight text-slate-900 font-sans flex items-center gap-1.5">
-                <span className="text-sky-900">SUGASTHA</span>
-                <span className="text-xs px-2 py-0.5 bg-sky-100 text-sky-800 font-bold rounded-md border border-sky-300">
-                  सुगस्था
-                </span>
-              </h1>
-              <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                <Activity className="w-2.5 h-2.5 mr-1 text-emerald-600 animate-pulse" />
-                ABDM LIVE
-              </span>
+          {/* Drawer Panel */}
+          <div className="relative w-full max-w-sm bg-white h-full shadow-2xl flex flex-col overflow-hidden animate-[slideInRight_0.25s_ease-out]">
+
+            {/* Indian Tricolor Ribbon in Drawer */}
+            <div className="h-1 w-full flex flex-shrink-0">
+              <div className="flex-1 bg-orange-500" />
+              <div className="flex-1 bg-white border-y border-slate-200" />
+              <div className="flex-1 bg-green-700" />
             </div>
-            <p className="text-xs text-slate-600 font-medium">
-              {lang === 'hi'
-                ? 'राष्ट्रीय एकीकृत स्वास्थ्य सेवा समन्वय एवं सरकारी अस्पताल डैशबोर्ड'
-                : 'National Unified Healthcare Orchestration & Government Hospital Dashboard'}
-            </p>
-          </div>
-        </div>
 
-        {/* Live Fallback Active Indicator (If any cascade in progress) */}
-        {activeFallback && (
-          <div className="flex items-center gap-2.5 bg-rose-50 border border-rose-300 px-3 py-1.5 rounded-lg text-rose-800 text-xs animate-pulse">
-            <div className="w-2.5 h-2.5 rounded-full bg-rose-600 animate-ping" />
-            <div>
-              <span className="font-bold">Auto-Fallback Active:</span> {activeFallback.secondsRemaining}s remaining for hospital response
-            </div>
-          </div>
-        )}
-      </div>
+            {/* Drawer Header */}
+            <div className="bg-white p-5 border-b border-slate-200 flex-shrink-0 shadow-sm">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <img
+                    src="/gov_emblem.png"
+                    alt="National Emblem"
+                    className="h-12 w-auto object-contain flex-shrink-0"
+                  />
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h2 className="font-black text-sky-950 text-lg tracking-tight">SUGASTHA</h2>
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                        LIVE
+                      </span>
+                    </div>
+                    <p className="text-xs font-bold text-amber-700">सुगस्था स्वास्थ्य मंच</p>
+                    <p className="text-[10px] text-slate-500 leading-tight">National Unified Healthcare Platform</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setMenuOpen(false)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
+                  aria-label="Close menu"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
 
-      {/* 4. Portal Navigation Tabs */}
-      <div className="bg-slate-100/90 border-t border-slate-200 px-4">
-        <div className="max-w-7xl mx-auto flex items-center gap-1 overflow-x-auto py-1">
-          {navItems.map(item => {
-            const isActive = portal === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setPortal(item.id)}
-                className={`relative flex items-center gap-2 px-3.5 py-2 text-xs md:text-sm font-semibold rounded-lg whitespace-nowrap transition-all ${
-                  isActive
-                    ? 'bg-sky-900 text-white shadow-sm'
-                    : 'text-slate-700 hover:bg-white hover:text-slate-900 hover:shadow-xs'
-                }`}
-              >
-                {item.icon}
-                <span>{lang === 'hi' ? item.labelHi : item.label}</span>
-                {item.badge !== undefined && (
-                  <span
-                    className={`ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
-                      item.badgeColor || 'bg-sky-600 text-white'
-                    }`}
-                  >
-                    {item.badge}
+              {/* Hospital Info */}
+              <div className="bg-slate-50 rounded-xl p-3 border border-slate-200">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Active Facility</span>
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                    ABDM Connected
                   </span>
+                </div>
+                <p className="text-slate-900 font-bold text-sm">{activeHospital?.name}</p>
+                <p className="text-slate-500 text-xs">{activeHospital?.type}</p>
+              </div>
+            </div>
+
+            {/* Navigation Menu Items */}
+            <div className="flex-1 overflow-y-auto">
+              <div className="p-4">
+                <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 px-1">Navigation</h3>
+                <div className="space-y-1">
+                  {menuItems.map(item => (
+                    <button
+                      key={item.id}
+                      onClick={() => { setActiveTab(item.id); setMenuOpen(false); }}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${
+                        activeTab === item.id
+                          ? 'bg-sky-50 border border-sky-200 text-sky-900'
+                          : 'hover:bg-slate-50 border border-transparent text-slate-700'
+                      }`}
+                    >
+                      <div className={`p-2 rounded-lg flex-shrink-0 ${
+                        activeTab === item.id ? 'bg-sky-100 text-sky-700' : 'bg-slate-100 text-slate-500'
+                      }`}>
+                        {item.icon}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className={`font-bold text-sm ${activeTab === item.id ? 'text-sky-900' : 'text-slate-800'}`}>{item.label}</p>
+                          {item.badge && (
+                            <span className="bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">{item.badge}</span>
+                          )}
+                        </div>
+                        <p className="text-xs text-slate-500 truncate">{item.desc}</p>
+                      </div>
+                      <ChevronRight className={`w-4 h-4 flex-shrink-0 ${activeTab === item.id ? 'text-sky-500' : 'text-slate-300'}`} />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+
+
+              {/* System Status */}
+              <div className="px-4 pb-4">
+                <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 px-1">System Status</h3>
+                <div className="space-y-1.5">
+                  {['ABDM Gateway', 'eSanjeevani', 'ABHA Health Locker', 'NHA Server'].map(s => (
+                    <div key={s} className="flex items-center justify-between bg-slate-50 border border-slate-100 rounded-lg px-3 py-2">
+                      <span className="text-xs text-slate-600">{s}</span>
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="text-[10px] font-bold text-emerald-600">Online</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Settings (collapsible) */}
+              <div className="px-4 pb-4">
+                <button
+                  onClick={() => setShowSettings(prev => !prev)}
+                  className="w-full flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 px-1"
+                >
+                  <span className="flex items-center gap-1.5"><Settings className="w-3 h-3" /> Display Settings</span>
+                  <ChevronRight className={`w-3 h-3 transition-transform ${showSettings ? 'rotate-90' : ''}`} />
+                </button>
+                {showSettings && (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between bg-slate-50 border border-slate-100 rounded-xl px-3 py-2.5">
+                      <span className="text-sm text-slate-700 font-medium">Font Size</span>
+                      <div className="flex items-center bg-white border border-slate-200 rounded-lg p-0.5 gap-0.5 shadow-sm">
+                        {(['normal', 'large', 'xlarge'] as const).map((s, i) => (
+                          <button
+                            key={s}
+                            onClick={() => setFontSize(s)}
+                            className={`px-2.5 py-1 rounded-md text-xs font-bold transition-all ${
+                              fontSize === s ? 'bg-slate-900 text-white shadow' : 'text-slate-500 hover:text-slate-800'
+                            }`}
+                          >
+                            {i === 0 ? 'A-' : i === 1 ? 'A' : 'A+'}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between bg-slate-50 border border-slate-100 rounded-xl px-3 py-2.5">
+                      <span className="text-sm text-slate-700 font-medium flex items-center gap-2"><Contrast className="w-4 h-4 text-slate-400" /> Contrast</span>
+                      <button onClick={() => setHighContrast(prev => !prev)} className={`relative w-11 h-6 rounded-full transition-colors ${highContrast ? 'bg-sky-600' : 'bg-slate-300'}`}>
+                        <span className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white shadow transition-transform ${highContrast ? 'translate-x-5' : ''}`} />
+                      </button>
+                    </div>
+                    <div className="flex items-center justify-between bg-slate-50 border border-slate-100 rounded-xl px-3 py-2.5">
+                      <span className="text-sm text-slate-700 font-medium flex items-center gap-2">
+                        {soundEnabled ? <Volume2 className="w-4 h-4 text-emerald-500" /> : <VolumeX className="w-4 h-4 text-slate-400" />} Audio
+                      </span>
+                      <button onClick={() => setSoundEnabled(prev => !prev)} className={`relative w-11 h-6 rounded-full transition-colors ${soundEnabled ? 'bg-emerald-500' : 'bg-slate-300'}`}>
+                        <span className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white shadow transition-transform ${soundEnabled ? 'translate-x-5' : ''}`} />
+                      </button>
+                    </div>
+                  </div>
                 )}
+              </div>
+            </div>
+
+            {/* Drawer Footer: Logout */}
+            <div className="flex-shrink-0 p-4 border-t border-slate-100 bg-white">
+              <button
+                onClick={() => { logout(); setMenuOpen(false); }}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 font-bold text-sm transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                Secure Logout
               </button>
-            );
-          })}
+              <p className="text-center text-[10px] text-slate-400 mt-2">
+                Ministry of Health & Family Welfare · NHA ABDM
+              </p>
+            </div>
+          </div>
         </div>
-      </div>
-    </header>
+      )}
+
+      <style>{`
+        @keyframes slideInRight {
+          from { transform: translateX(100%); opacity: 0; }
+          to   { transform: translateX(0);    opacity: 1; }
+        }
+      `}</style>
+    </>
   );
 };
