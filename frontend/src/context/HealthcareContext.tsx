@@ -30,6 +30,7 @@ import {
   announceVoice
 } from '../utils/audio';
 import confetti from 'canvas-confetti';
+import { api } from '../services/api';
 
 interface FallbackTimerState {
   appointmentId: string;
@@ -192,6 +193,37 @@ export const HealthcareProvider: React.FC<{ children: ReactNode }> = ({ children
     localStorage.setItem('sugastha_voice_tasks', JSON.stringify(voiceTasks));
   }, [voiceTasks]);
 
+  // Sync with live FastAPI backend on startup
+  useEffect(() => {
+    let isMounted = true;
+    const fetchBackendData = async () => {
+      try {
+        const isHealthy = await api.checkHealth();
+        if (isHealthy && isMounted) {
+          const [backendHospitals, backendDoctors, backendAppointments] = await Promise.all([
+            api.getHospitals().catch(() => null),
+            api.getDoctors().catch(() => null),
+            api.getAppointments().catch(() => null)
+          ]);
+
+          if (backendHospitals && backendHospitals.length > 0 && isMounted) {
+            setHospitals(backendHospitals);
+          }
+          if (backendDoctors && backendDoctors.length > 0 && isMounted) {
+            setDoctors(backendDoctors);
+          }
+          if (backendAppointments && backendAppointments.length > 0 && isMounted) {
+            setAppointments(backendAppointments);
+          }
+        }
+      } catch (e) {
+        console.warn('Backend unavailable, running with local resilience state', e);
+      }
+    };
+    fetchBackendData();
+    return () => { isMounted = false; };
+  }, []);
+
   // Audio helper
   const triggerSound = useCallback((type: 'chime' | 'beep' | 'emergency') => {
     if (!soundEnabled) return;
@@ -287,11 +319,42 @@ export const HealthcareProvider: React.FC<{ children: ReactNode }> = ({ children
       reason: 'Awaiting Hospital OPD desk acceptance confirmation...'
     });
 
+    // Sync appointment to backend database
+    api.createAppointment({
+      id: newAppointment.id,
+      token_no: newAppointment.tokenNo,
+      abha_id: newAppointment.abhaId,
+      patient_name: newAppointment.patientName,
+      patient_phone: newAppointment.patientPhone,
+      age: newAppointment.age,
+      gender: newAppointment.gender,
+      hospital_id: newAppointment.hospitalId,
+      hospital_name: newAppointment.hospitalName,
+      department: newAppointment.department,
+      doctor_id: newAppointment.doctorId,
+      doctor_name: newAppointment.doctorName,
+      room_no: newAppointment.roomNo,
+      triage_color: newAppointment.triageColor,
+      triage_reason: newAppointment.triageReason,
+      symptoms: newAppointment.symptoms,
+      vitals: newAppointment.vitals,
+      status: newAppointment.status,
+      referral_source: newAppointment.referralSource,
+      referral_by_asha_name: newAppointment.referralByAshaName,
+      qr_code_data: newAppointment.qrCodeData,
+      pin_code: newAppointment.pinCode,
+      slot_time: newAppointment.slotTime,
+      fallback_cascade_trail: newAppointment.fallbackCascadeTrail
+    }).catch(err => console.warn('Backend appointment sync error:', err));
+
     return newAppointment;
   }, [doctors, hospitals, addEventLog, triggerSound]);
 
   // Reject Appointment & Escalate immediately to next available facility
   const rejectAppointmentAndEscalate = useCallback((appointmentId: string, rejectReason: string = 'OPD Capacity Overload / Specialist in Emergency') => {
+    // Sync escalation with backend
+    api.escalateAppointment(appointmentId, rejectReason).catch(err => console.warn('Backend escalation error:', err));
+
     setAppointments(prev => {
       const apt = prev.find(a => a.id === appointmentId);
       if (!apt) return prev;
@@ -334,6 +397,9 @@ export const HealthcareProvider: React.FC<{ children: ReactNode }> = ({ children
 
   // Accept Appointment
   const acceptAppointment = useCallback((appointmentId: string) => {
+    // Sync acceptance with backend
+    api.acceptAppointment(appointmentId).catch(err => console.warn('Backend accept error:', err));
+
     setAppointments(prev => prev.map(a => {
       if (a.id === appointmentId) {
         const updatedTrail = [...a.fallbackCascadeTrail, `✅ ${a.hospitalName} Confirmed & Token Issued`];
@@ -433,6 +499,26 @@ export const HealthcareProvider: React.FC<{ children: ReactNode }> = ({ children
   const submitDoctorConsultation = useCallback((appointmentId: string, summary: ConsultationSummary) => {
     const apt = appointments.find(a => a.id === appointmentId);
     if (!apt) return;
+
+    // Sync consultation to backend database
+    api.submitConsultation({
+      appointment_id: appointmentId,
+      consultation_date: summary.consultationDate,
+      doctor_id: summary.doctorId,
+      doctor_name: summary.doctorName,
+      hospital_name: summary.hospitalName,
+      department: summary.department,
+      chief_complaints: summary.chiefComplaints,
+      clinical_observations: summary.clinicalObservations,
+      diagnosis: summary.diagnosis,
+      icd10_code: summary.icd10Code,
+      medications: summary.medications,
+      lab_tests_ordered: summary.labTestsOrdered,
+      advice: summary.advice,
+      follow_up_days: summary.followUpDays,
+      abha_synced: summary.abhaSynced,
+      abha_transaction_id: summary.abhaTransactionId
+    }).catch(err => console.warn('Backend consultation sync error:', err));
 
     // 1. Mark Appointment Completed
     setAppointments(prev => prev.map(a => a.id === appointmentId ? {

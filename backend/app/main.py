@@ -1,12 +1,16 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
-from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.db.database import engine, get_db
-
+from app.db.database import engine
+from app.db.base import Base
 from app.api.v1 import api_router
+
+# Ensure all database tables are created automatically
+import app.models  # Load all models so Base has metadata
+Base.metadata.create_all(bind=engine)
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     description="Backend for SUGASTHA Healthcare System",
@@ -16,7 +20,7 @@ app = FastAPI(
 # Set all CORS enabled origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS.split(","),
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -24,7 +28,11 @@ app.add_middleware(
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to SUGASTHA API"}
+    return {
+        "message": "Welcome to SUGASTHA National Unified Healthcare API",
+        "status": "online",
+        "docs_url": "/docs"
+    }
 
 @app.get("/health")
 def health_check():
