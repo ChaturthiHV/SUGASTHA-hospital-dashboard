@@ -86,8 +86,8 @@ export const GovHeader: React.FC = () => {
           <div className="flex items-center gap-3">
             <div className="relative flex-shrink-0">
               <img
-                src="/gov_emblem.png"
-                alt="Government of India Emblem"
+                src="/logo.png"
+                alt="SUGASTHA Logo"
                 className="h-10 w-auto object-contain"
               />
             </div>
@@ -223,8 +223,8 @@ export const GovHeader: React.FC = () => {
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
                   <img
-                    src="/gov_emblem.png"
-                    alt="National Emblem"
+                    src="/logo.png"
+                    alt="SUGASTHA Logo"
                     className="h-10 w-auto object-contain"
                   />
                   <div>

@@ -54,6 +54,28 @@ export const api = {
     return res.json();
   },
 
+  async updateDoctor(doctorId: string, updates: any): Promise<any> {
+    const res = await fetch(`${API_BASE_URL}/doctors/${doctorId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates)
+    });
+    if (!res.ok) throw new Error(`Failed to update doctor ${doctorId}: ${res.statusText}`);
+    return res.json();
+  },
+
+  async extractDoctorsFromPdf(file: File, hospitalId: string): Promise<any[]> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('hospital_id', hospitalId);
+    const res = await fetch(`${API_BASE_URL}/doctors/extract-pdf`, {
+      method: 'POST',
+      body: formData
+    });
+    if (!res.ok) throw new Error(`Failed to extract doctors from PDF: ${res.statusText}`);
+    return res.json();
+  },
+
   // 3. Appointments / Triage Queue API
   async getAppointments(hospitalId?: string, status?: string): Promise<any[]> {
     const params = new URLSearchParams();

@@ -36,17 +36,13 @@ export const HospitalLogin: React.FC = () => {
   };
 
   const handleQuickDemoFill = () => {
-    setHospitalId('admin');
-    setPassword('password123');
+    setHospitalId('AIIMS-DL01');
+    setPassword('aiims@2026');
     setError('');
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 flex items-center justify-center p-4 relative overflow-hidden font-sans">
-      {/* Background Ambient Glows */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
-
+    <div className="min-h-screen bg-white flex items-center justify-center p-4 relative font-sans">
       {/* Indian Tricolor Top Ribbon */}
       <div className="absolute top-0 left-0 right-0 h-1 flex">
         <div className="flex-1 bg-amber-500" />
@@ -56,29 +52,29 @@ export const HospitalLogin: React.FC = () => {
 
       <div className="max-w-md w-full relative z-10">
         {/* Portal Card */}
-        <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-white/20">
+        <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200">
           {/* Header Banner */}
-          <div className="bg-gradient-to-b from-slate-900 to-slate-950 p-8 text-center relative overflow-hidden border-b border-slate-800">
+          <div className="bg-white p-8 text-center relative border-b border-slate-100">
             <div className="relative z-10 flex flex-col items-center">
               <div className="flex items-center gap-3 mb-4">
                 <img
-                  src="/gov_emblem.png"
-                  alt="Government of India Emblem"
-                  className="h-14 w-auto object-contain filter drop-shadow"
+                  src="/logo.png"
+                  alt="SUGASTHA Logo"
+                  className="h-16 w-auto object-contain"
                 />
               </div>
 
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-semibold mb-2">
-                <Activity className="w-3.5 h-3.5 animate-pulse text-emerald-400" />
-                ABDM National Gateway
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold mb-2">
+                <Activity className="w-3.5 h-3.5 text-emerald-600" />
+                Hospital Network Gateway
               </div>
 
-              <h2 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
+              <h2 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
                 SUGASTHA
-                <span className="text-amber-400 font-bold text-base">सुगस्था</span>
+                <span className="text-amber-600 font-bold text-base">सुगस्था</span>
               </h2>
-              <p className="text-slate-400 text-xs mt-1 font-medium">
-                Hospital Command & Triage Portal · MoHFW
+              <p className="text-slate-500 text-xs mt-1 font-medium">
+                Hospital Command Portal
               </p>
             </div>
           </div>
@@ -95,7 +91,7 @@ export const HospitalLogin: React.FC = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                  Hospital / Doctor ID
+                  Hospital ID
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -106,10 +102,13 @@ export const HospitalLogin: React.FC = () => {
                     value={hospitalId}
                     onChange={(e) => setHospitalId(e.target.value)}
                     className="block w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-medium focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
-                    placeholder="Enter ID (e.g. admin)"
+                    placeholder="e.g. AIIMS-DL01"
                     required
                   />
                 </div>
+                <p className="text-[11px] text-slate-400 mt-1.5">
+                  Each hospital has its own unique ID and password issued by the network admin.
+                </p>
               </div>
 
               <div>
@@ -149,7 +148,7 @@ export const HospitalLogin: React.FC = () => {
                   Quick Fill Demo Credentials
                 </span>
                 <span className="text-[10px] font-mono bg-white px-2 py-0.5 rounded border border-emerald-300 text-emerald-900">
-                  admin / password123
+                  AIIMS-DL01 / aiims@2026
                 </span>
               </button>
 

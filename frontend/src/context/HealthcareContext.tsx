@@ -124,6 +124,9 @@ interface HealthcareContextType {
   convertVoiceTaskToAppointment: (taskId: string, hospitalId: string, department: string) => Appointment | null;
   addEventLog: (log: Omit<SystemEventLog, 'id' | 'timestamp'>) => void;
   triggerEdgeCaseDemo: (caseId: 'hospital_timeout' | 'asha_cascade' | 'voice_stt' | 'capacity_overload') => void;
+  editDoctor: (doctorId: string, updates: Partial<Doctor>) => void;
+  addDoctor: (doctor: Doctor) => void;
+  removeDoctor: (doctorId: string) => void;
 }
 
 const HealthcareContext = createContext<HealthcareContextType | undefined>(undefined);
@@ -133,9 +136,18 @@ export const HealthcareProvider: React.FC<{ children: ReactNode }> = ({ children
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
   const login = useCallback((id: string, pass: string) => {
-    // Hardcoded credentials based on user's preference
+    // Master admin override (sees all hospitals)
     if (id === 'admin' && pass === 'password123') {
       setIsAuthenticated(true);
+      return true;
+    }
+    // Per-hospital login: each hospital has its own Hospital ID + password
+    const matchedHospital = INITIAL_HOSPITALS.find(
+      h => h.loginId.toLowerCase() === id.trim().toLowerCase() && h.password === pass
+    );
+    if (matchedHospital) {
+      setIsAuthenticated(true);
+      setCurrentHospitalId(matchedHospital.id);
       return true;
     }
     return false;
@@ -852,6 +864,25 @@ export const HealthcareProvider: React.FC<{ children: ReactNode }> = ({ children
     }
   }, [currentUser, hospitals, appointments, bookAppointmentWithSmartFallback, submitVoiceNoteFallback, rejectAppointmentAndEscalate, triggerSound]);
 
+  // Edit an existing doctor's details (used by the Doctor Roster "Edit" modal)
+  const editDoctor = useCallback((doctorId: string, updates: Partial<Doctor>) => {
+    setDoctors(prev => prev.map(d => (d.id === doctorId ? { ...d, ...updates } : d)));
+    api.updateDoctor?.(doctorId, updates).catch(() => {
+      // Backend may be offline; local state is already updated.
+    });
+  }, []);
+
+  // Add a new doctor (manual entry or from PDF extraction)
+  const addDoctor = useCallback((doctor: Doctor) => {
+    setDoctors(prev => [...prev, doctor]);
+    api.createDoctor?.(doctor).catch(() => {});
+  }, []);
+
+  // Remove a doctor from the roster
+  const removeDoctor = useCallback((doctorId: string) => {
+    setDoctors(prev => prev.filter(d => d.id !== doctorId));
+  }, []);
+
   return (
     <HealthcareContext.Provider
       value={{
@@ -894,7 +925,10 @@ export const HealthcareProvider: React.FC<{ children: ReactNode }> = ({ children
         claimVoiceTask,
         convertVoiceTaskToAppointment,
         addEventLog,
-        triggerEdgeCaseDemo
+        triggerEdgeCaseDemo,
+        editDoctor,
+        addDoctor,
+        removeDoctor
       }}
     >
       {children}

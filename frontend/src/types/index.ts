@@ -60,10 +60,16 @@ export interface Doctor {
   currentQueueLength: number;
   consultationFee: number; // 0 for Govt
   rating: number;
+  opdTiming: string; // e.g. "Mon-Sat, 9:00 AM - 1:00 PM"
+  availableDays: string[]; // e.g. ["Mon","Tue","Wed","Thu","Fri","Sat"]
+  phone?: string;
+  email?: string;
 }
 
 export interface Hospital {
   id: string;
+  loginId: string;
+  password: string;
   name: string;
   nameHindi: string;
   type: 'AIIMS / Apex' | 'District Hospital' | 'Civil Hospital' | 'Community Health Centre (CHC)' | 'Primary Health Centre (PHC)';

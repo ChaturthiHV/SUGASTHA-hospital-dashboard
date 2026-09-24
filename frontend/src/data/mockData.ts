@@ -90,7 +90,11 @@ export const INITIAL_DOCTORS: Doctor[] = [
     bookedSlots: 32,
     currentQueueLength: 6,
     consultationFee: 0,
-    rating: 4.9
+    rating: 4.9,
+    opdTiming: 'Mon-Sat, 9:00 AM - 1:00 PM',
+    availableDays: ['Mon','Tue','Wed','Thu','Fri','Sat'],
+    phone: '011-26588501',
+    email: 'rajesh.sharma@aiims.gov.in'
   },
   {
     id: 'doc-2',
@@ -107,7 +111,11 @@ export const INITIAL_DOCTORS: Doctor[] = [
     bookedSlots: 24,
     currentQueueLength: 4,
     consultationFee: 0,
-    rating: 4.8
+    rating: 4.8,
+    opdTiming: 'Mon-Fri, 10:00 AM - 2:00 PM',
+    availableDays: ['Mon','Tue','Wed','Thu','Fri'],
+    phone: '011-26588502',
+    email: 'ananya.sengupta@aiims.gov.in'
   },
   {
     id: 'doc-3',
@@ -124,7 +132,11 @@ export const INITIAL_DOCTORS: Doctor[] = [
     bookedSlots: 41,
     currentQueueLength: 9,
     consultationFee: 0,
-    rating: 4.7
+    rating: 4.7,
+    opdTiming: 'Mon-Sat, 8:30 AM - 12:30 PM',
+    availableDays: ['Mon','Tue','Wed','Thu','Fri','Sat'],
+    phone: '011-26165061',
+    email: 'vikramaditya.rathore@sfj.gov.in'
   },
   {
     id: 'doc-4',
@@ -141,7 +153,11 @@ export const INITIAL_DOCTORS: Doctor[] = [
     bookedSlots: 20,
     currentQueueLength: 3,
     consultationFee: 0,
-    rating: 4.9
+    rating: 4.9,
+    opdTiming: 'Tue-Sun, 9:00 AM - 1:00 PM',
+    availableDays: ['Tue','Wed','Thu','Fri','Sat','Sun'],
+    phone: '011-26165062',
+    email: 'priya.narang@sfj.gov.in'
   },
   {
     id: 'doc-5',
@@ -158,7 +174,11 @@ export const INITIAL_DOCTORS: Doctor[] = [
     bookedSlots: 28,
     currentQueueLength: 5,
     consultationFee: 0,
-    rating: 4.8
+    rating: 4.8,
+    opdTiming: 'Mon-Sat, 9:00 AM - 3:00 PM',
+    availableDays: ['Mon','Tue','Wed','Thu','Fri','Sat'],
+    phone: '011-23365526',
+    email: 'harshvardhan.meena@rml.gov.in'
   },
   {
     id: 'doc-6',
@@ -175,13 +195,19 @@ export const INITIAL_DOCTORS: Doctor[] = [
     bookedSlots: 15,
     currentQueueLength: 2,
     consultationFee: 0,
-    rating: 4.6
+    rating: 4.6,
+    opdTiming: 'Mon-Sat, 9:00 AM - 1:00 PM',
+    availableDays: ['Mon','Tue','Wed','Thu','Fri','Sat'],
+    phone: '011-25494403',
+    email: 'kavita.yadav@ddu.gov.in'
   }
 ];
 
 export const INITIAL_HOSPITALS: Hospital[] = [
   {
     id: 'hosp-1',
+    loginId: 'AIIMS-DL01',
+    password: 'aiims@2026',
     name: 'All India Institute of Medical Sciences (AIIMS)',
     nameHindi: 'अखिल भारतीय आयुर्विज्ञान संस्थान (एम्स नई दिल्ली)',
     type: 'AIIMS / Apex',
@@ -203,6 +229,8 @@ export const INITIAL_HOSPITALS: Hospital[] = [
   },
   {
     id: 'hosp-2',
+    loginId: 'SFJ-DL02',
+    password: 'safdarjung@2026',
     name: 'Vardhman Mahavir Medical College & Safdarjung Hospital',
     nameHindi: 'सफदरजंग अस्पताल एवं मेडिकल कॉलेज',
     type: 'District Hospital',
@@ -224,6 +252,8 @@ export const INITIAL_HOSPITALS: Hospital[] = [
   },
   {
     id: 'hosp-3',
+    loginId: 'RML-DL03',
+    password: 'rmlhosp@2026',
     name: 'Dr. Ram Manohar Lohia Hospital & PGIMER',
     nameHindi: 'डॉ. राम मनोहर लोहिया अस्पताल (आरएमएल)',
     type: 'District Hospital',
@@ -245,6 +275,8 @@ export const INITIAL_HOSPITALS: Hospital[] = [
   },
   {
     id: 'hosp-4',
+    loginId: 'DDU-DL04',
+    password: 'dducivil@2026',
     name: 'Deen Dayal Upadhyay Government Civil Hospital',
     nameHindi: 'दीन दयाल उपाध्याय राजकीय सिविल अस्पताल',
     type: 'Civil Hospital',

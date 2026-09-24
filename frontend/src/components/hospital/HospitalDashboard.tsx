@@ -1,6 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { useHealthcare } from '../../context/HealthcareContext';
 import { ESanjeevaniModal } from '../shared/eSanjeevaniModal';
+import { DoctorEditModal } from './DoctorEditModal';
+import { DoctorPdfImportModal } from './DoctorPdfImportModal';
+import { Doctor } from '../../types';
 import {
   Building2,
   Users,
@@ -43,7 +46,10 @@ export const HospitalDashboard: React.FC = () => {
     submitDoctorConsultation,
     bookAppointmentWithSmartFallback,
     activeTab,
-    setActiveTab
+    setActiveTab,
+    editDoctor,
+    addDoctor,
+    removeDoctor
   } = useHealthcare();
 
   // Active hospital
@@ -53,6 +59,8 @@ export const HospitalDashboard: React.FC = () => {
   const [activeTeleconsult, setActiveTeleconsult] = useState<string | null>(null);
   const [consultingAppointment, setConsultingAppointment] = useState<any | null>(null);
   const [showAddDoctorModal, setShowAddDoctorModal] = useState(false);
+  const [editingDoctor, setEditingDoctor] = useState<Doctor | null>(null);
+  const [showPdfImportModal, setShowPdfImportModal] = useState(false);
   const [showSimulateModal, setShowSimulateModal] = useState(false);
 
   // OPD Filter & Search State
@@ -118,7 +126,7 @@ export const HospitalDashboard: React.FC = () => {
 
   // Doctor roster filtered for active hospital
   const hospitalDoctors = useMemo(() => {
-    const docs = doctors.filter(d => activeHospital.doctorIds.includes(d.id));
+    const docs = doctors.filter(d => d.hospitalId === activeHospital.id || activeHospital.doctorIds.includes(d.id));
     if (doctorSpecialtyFilter === 'ALL') return docs;
     return docs.filter(d => d.specialty.toLowerCase().includes(doctorSpecialtyFilter.toLowerCase()));
   }, [doctors, activeHospital.doctorIds, doctorSpecialtyFilter]);
@@ -785,13 +793,22 @@ export const HospitalDashboard: React.FC = () => {
                 </p>
               </div>
 
-              <button
-                onClick={() => setShowAddDoctorModal(true)}
-                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 self-start sm:self-auto"
-              >
-                <UserPlus className="w-3.5 h-3.5" />
-                <span>Log Doctor / Punch In</span>
-              </button>
+              <div className="flex items-center gap-2 self-start sm:self-auto">
+                <button
+                  onClick={() => setShowPdfImportModal(true)}
+                  className="px-4 py-2 bg-white border border-slate-200 hover:border-emerald-400 active:scale-95 text-slate-700 font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5"
+                >
+                  <FileText className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Import from PDF</span>
+                </button>
+                <button
+                  onClick={() => setShowAddDoctorModal(true)}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span>Log Doctor / Punch In</span>
+                </button>
+              </div>
             </div>
 
             {/* Department Filter Pills */}
@@ -845,6 +862,14 @@ export const HospitalDashboard: React.FC = () => {
                     </div>
                   </div>
 
+                  {/* Availability / OPD Timing */}
+                  {doc.opdTiming && (
+                    <div className="mb-3 text-[11px] text-slate-500 font-medium flex items-center gap-1.5">
+                      <Clock className="w-3 h-3 text-slate-400" />
+                      {doc.opdTiming}
+                    </div>
+                  )}
+
                   {/* Consultation Load Progress */}
                   <div className="pt-3 border-t border-slate-100">
                     <div className="flex justify-between items-center text-xs mb-1.5">
@@ -859,6 +884,12 @@ export const HospitalDashboard: React.FC = () => {
                         style={{ width: `${(doc.bookedSlots / doc.maxDailySlots) * 100}%` }}
                       />
                     </div>
+                    <button
+                      onClick={() => setEditingDoctor(doc)}
+                      className="mt-3 w-full py-2 rounded-xl border border-slate-200 hover:border-emerald-400 hover:bg-emerald-50/60 text-slate-700 text-[11px] font-bold transition-all"
+                    >
+                      Edit Doctor Details
+                    </button>
                   </div>
                 </div>
               ))}
@@ -1449,6 +1480,50 @@ export const HospitalDashboard: React.FC = () => {
             </form>
           </div>
         </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL 4: EDIT DOCTOR DETAILS                                              */}
+      {/* ========================================================================= */}
+      {editingDoctor && (
+        <DoctorEditModal
+          doctor={editingDoctor}
+          onClose={() => setEditingDoctor(null)}
+          onSave={(doctorId, updates) => editDoctor(doctorId, updates)}
+          onDelete={(doctorId) => removeDoctor(doctorId)}
+        />
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL 5: IMPORT DOCTORS FROM PDF                                          */}
+      {/* ========================================================================= */}
+      {showPdfImportModal && (
+        <DoctorPdfImportModal
+          hospitalName={activeHospital.name}
+          onClose={() => setShowPdfImportModal(false)}
+          onAddRow={(row) => {
+            const newDoctor: Doctor = {
+              id: `doc-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+              hospitalId: activeHospital.id,
+              name: row.name,
+              specialty: row.specialty || 'General Medicine',
+              specialtyHindi: row.specialty || 'सामान्य चिकित्सा',
+              qualification: 'MBBS',
+              experienceYears: 5,
+              roomNo: row.roomNo || 'OPD Room TBD',
+              aebasStatus: 'ON_DUTY',
+              aebasCheckInTime: '09:00 AM IST',
+              maxDailySlots: 30,
+              bookedSlots: 0,
+              currentQueueLength: 0,
+              consultationFee: 0,
+              rating: 4.5,
+              opdTiming: row.opdTiming || 'Mon-Sat, 9:00 AM - 1:00 PM',
+              availableDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+            };
+            addDoctor(newDoctor);
+          }}
+        />
       )}
     </div>
   );

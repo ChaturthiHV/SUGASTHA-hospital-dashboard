@@ -19,3 +19,7 @@ class Doctor(Base):
     current_queue_length = Column(Integer, default=4)
     consultation_fee = Column(Integer, default=0)
     rating = Column(Float, default=4.9)
+    opd_timing = Column(String(255), nullable=True, default="Mon-Sat, 9:00 AM - 1:00 PM")
+    available_days = Column(String(255), nullable=True, default="Mon,Tue,Wed,Thu,Fri,Sat")
+    phone = Column(String(50), nullable=True)
+    email = Column(String(255), nullable=True)
