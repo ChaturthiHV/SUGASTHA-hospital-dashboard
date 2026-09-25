@@ -11,6 +11,8 @@ class Hospital(Base):
     district = Column(String(100), nullable=False)
     state = Column(String(100), nullable=False)
     address = Column(String(255), nullable=False)
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
     distance_km = Column(Float, default=4.2)
     travel_cost_inr = Column(Integer, default=25)
     emergency_available = Column(Boolean, default=True)

@@ -1,4 +1,5 @@
 import json
+from sqlalchemy import text
 from app.db.database import SessionLocal, engine
 from app.db.base import Base
 from app.models.hospital import Hospital
@@ -7,8 +8,38 @@ from app.models.appointment import Appointment
 from app.models.user import User
 from app.core.security import get_password_hash
 
+# Real-world coordinates for the seeded government hospitals, used by the
+# nearest-government-hospital lookup that the citizen (user) app calls into.
+HOSPITAL_COORDINATES = {
+    "hosp-1": (28.5670, 77.2100),   # AIIMS New Delhi
+    "hosp-2": (28.5697, 77.2064),   # Safdarjung Hospital
+    "hosp-3": (28.6259, 77.2018),   # Dr. RML Hospital
+}
+
+def _ensure_lat_lng_columns():
+    """SQLite/Postgres safe 'migration': add latitude/longitude columns to an
+    already-existing hospitals table if this DB was created before they
+    were added to the model."""
+    existing_cols = set()
+    try:
+        with engine.connect() as conn:
+            result = conn.execute(text("PRAGMA table_info(hospitals)"))
+            existing_cols = {row[1] for row in result}
+    except Exception:
+        return
+
+    if not existing_cols:
+        return
+
+    with engine.begin() as conn:
+        if "latitude" not in existing_cols:
+            conn.execute(text("ALTER TABLE hospitals ADD COLUMN latitude FLOAT"))
+        if "longitude" not in existing_cols:
+            conn.execute(text("ALTER TABLE hospitals ADD COLUMN longitude FLOAT"))
+
 def seed_database():
     Base.metadata.create_all(bind=engine)
+    _ensure_lat_lng_columns()
     db = SessionLocal()
 
     try:
@@ -35,6 +66,8 @@ def seed_database():
                 "district": "New Delhi",
                 "state": "Delhi",
                 "address": "Sri Aurobindo Marg, Ansari Nagar East, New Delhi - 110029",
+                "latitude": 28.5670,
+                "longitude": 77.2100,
                 "distance_km": 4.2,
                 "travel_cost_inr": 25,
                 "emergency_available": True,
@@ -56,6 +89,8 @@ def seed_database():
                 "district": "New Delhi",
                 "state": "Delhi",
                 "address": "Ring Road, opposite AIIMS, Safdarjung Enclave, New Delhi - 110029",
+                "latitude": 28.5697,
+                "longitude": 77.2064,
                 "distance_km": 4.8,
                 "travel_cost_inr": 30,
                 "emergency_available": True,
@@ -77,6 +112,8 @@ def seed_database():
                 "district": "Central Delhi",
                 "state": "Delhi",
                 "address": "Baba Kharak Singh Marg, Connaught Place, New Delhi - 110001",
+                "latitude": 28.6259,
+                "longitude": 77.2018,
                 "distance_km": 8.5,
                 "travel_cost_inr": 45,
                 "emergency_available": True,
@@ -97,6 +134,12 @@ def seed_database():
             if not existing:
                 db.add(Hospital(**h_data))
                 print(f"Added hospital: {h_data['name']}")
+            elif existing.latitude is None or existing.longitude is None:
+                # Backfill coordinates on a hospital row created before lat/lng existed
+                coords = HOSPITAL_COORDINATES.get(h_data["id"])
+                if coords:
+                    existing.latitude, existing.longitude = coords
+                    print(f"Backfilled coordinates for: {h_data['name']}")
 
         # 3. Seed Doctors
         doctors_data = [

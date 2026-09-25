@@ -1,7 +1,12 @@
 // SUGASTHA Backend API Client
-// Connects Frontend to FastAPI Backend on http://localhost:8000/api/v1
+// Connects Frontend to FastAPI Backend. Defaults to localhost for local dev;
+// set VITE_API_BASE_URL when deploying (e.g. to your Render backend URL).
 
-const API_BASE_URL = 'http://localhost:8000/api/v1';
+import { adaptHospital, adaptDoctor, adaptAppointment } from './apiAdapters';
+
+const API_BASE_URL: string =
+  (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
+const ROOT_URL = API_BASE_URL.replace(/\/api\/v1\/?$/, '');
 
 export interface ApiHealthResponse {
   status: string;
@@ -12,7 +17,7 @@ export const api = {
   // Check backend connectivity
   async checkHealth(): Promise<boolean> {
     try {
-      const res = await fetch('http://localhost:8000/health', { method: 'GET', signal: AbortSignal.timeout(2000) });
+      const res = await fetch(`${ROOT_URL}/health`, { method: 'GET', signal: AbortSignal.timeout(2000) });
       if (!res.ok) return false;
       const data: ApiHealthResponse = await res.json();
       return data.status === 'healthy';
@@ -25,7 +30,8 @@ export const api = {
   async getHospitals(): Promise<any[]> {
     const res = await fetch(`${API_BASE_URL}/hospitals`);
     if (!res.ok) throw new Error(`Failed to fetch hospitals: ${res.statusText}`);
-    return res.json();
+    const raw = await res.json();
+    return raw.map((h: any) => adaptHospital(h));
   },
 
   async getHospitalById(id: string): Promise<any> {
@@ -41,7 +47,8 @@ export const api = {
       : `${API_BASE_URL}/doctors`;
     const res = await fetch(url);
     if (!res.ok) throw new Error(`Failed to fetch doctors: ${res.statusText}`);
-    return res.json();
+    const raw = await res.json();
+    return raw.map((d: any) => adaptDoctor(d));
   },
 
   async createDoctor(doctorData: any): Promise<any> {
@@ -85,7 +92,8 @@ export const api = {
     const url = `${API_BASE_URL}/appointments?${params.toString()}`;
     const res = await fetch(url);
     if (!res.ok) throw new Error(`Failed to fetch appointments: ${res.statusText}`);
-    return res.json();
+    const raw = await res.json();
+    return raw.map((a: any) => adaptAppointment(a));
   },
 
   async createAppointment(appointmentData: any): Promise<any> {
@@ -95,7 +103,7 @@ export const api = {
       body: JSON.stringify(appointmentData)
     });
     if (!res.ok) throw new Error(`Failed to create appointment: ${res.statusText}`);
-    return res.json();
+    return adaptAppointment(await res.json());
   },
 
   async acceptAppointment(appointmentId: string): Promise<any> {
@@ -103,7 +111,7 @@ export const api = {
       method: 'POST'
     });
     if (!res.ok) throw new Error(`Failed to accept appointment ${appointmentId}: ${res.statusText}`);
-    return res.json();
+    return adaptAppointment(await res.json());
   },
 
   async escalateAppointment(appointmentId: string, reason?: string): Promise<any> {
@@ -112,7 +120,7 @@ export const api = {
       : `${API_BASE_URL}/appointments/${appointmentId}/escalate`;
     const res = await fetch(url, { method: 'POST' });
     if (!res.ok) throw new Error(`Failed to escalate appointment ${appointmentId}: ${res.statusText}`);
-    return res.json();
+    return adaptAppointment(await res.json());
   },
 
   // 4. Doctor Consultations & ABHA Sync API

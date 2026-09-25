@@ -205,7 +205,9 @@ export const HealthcareProvider: React.FC<{ children: ReactNode }> = ({ children
     localStorage.setItem('sugastha_voice_tasks', JSON.stringify(voiceTasks));
   }, [voiceTasks]);
 
-  // Sync with live FastAPI backend on startup
+  // Sync with live FastAPI backend on startup, then keep polling so new
+  // appointments booked from the citizen app (or another hospital session)
+  // show up without the staff needing to reload the page.
   useEffect(() => {
     let isMounted = true;
     const fetchBackendData = async () => {
@@ -233,7 +235,8 @@ export const HealthcareProvider: React.FC<{ children: ReactNode }> = ({ children
       }
     };
     fetchBackendData();
-    return () => { isMounted = false; };
+    const pollInterval = window.setInterval(fetchBackendData, 15000);
+    return () => { isMounted = false; window.clearInterval(pollInterval); };
   }, []);
 
   // Audio helper

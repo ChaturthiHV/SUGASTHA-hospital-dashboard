@@ -8,6 +8,8 @@ class HospitalBase(BaseModel):
     district: str
     state: str
     address: str
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     distance_km: float = 4.2
     travel_cost_inr: int = 25
     emergency_available: bool = True
