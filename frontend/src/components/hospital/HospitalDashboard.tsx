@@ -298,10 +298,7 @@ export const HospitalDashboard: React.FC = () => {
       <div className="bg-white/80 backdrop-blur-md p-1.5 rounded-2xl border border-slate-200/90 shadow-xs mb-6 overflow-x-auto flex items-center gap-1">
         {[
           { id: 'OPD', label: 'OPD Queue & Triage', icon: <Users className="w-4 h-4" /> },
-          { id: 'IPD', label: 'Bed & Ward Matrix', icon: <Bed className="w-4 h-4" /> },
-          { id: 'DOCTORS', label: 'Doctor Roster (AEBAS)', icon: <Stethoscope className="w-4 h-4" /> },
-          { id: 'TELECONSULT', label: 'eSanjeevani Tele-Desk', icon: <Video className="w-4 h-4" /> },
-          { id: 'ANALYTICS', label: 'Hospital Analytics', icon: <BarChart className="w-4 h-4" /> }
+          { id: 'DOCTORS', label: 'Doctor Roster (AEBAS)', icon: <Stethoscope className="w-4 h-4" /> }
         ].map(tab => (
           <button
             key={tab.id}

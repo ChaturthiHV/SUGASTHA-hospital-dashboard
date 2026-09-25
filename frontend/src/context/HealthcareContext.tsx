@@ -46,8 +46,8 @@ interface HealthcareContextType {
   login: (id: string, pass: string) => boolean;
   logout: () => void;
   // Dashboard Tab Navigation
-  activeTab: 'OPD' | 'IPD' | 'DOCTORS' | 'TELECONSULT' | 'ANALYTICS';
-  setActiveTab: (tab: 'OPD' | 'IPD' | 'DOCTORS' | 'TELECONSULT' | 'ANALYTICS') => void;
+  activeTab: 'OPD' | 'DOCTORS';
+  setActiveTab: (tab: 'OPD' | 'DOCTORS') => void;
   // Navigation & UI Settings
   portal: PortalType;
   setPortal: (p: PortalType) => void;
@@ -158,7 +158,7 @@ export const HealthcareProvider: React.FC<{ children: ReactNode }> = ({ children
   }, []);
 
   // Dashboard Tab State
-  const [activeTab, setActiveTab] = useState<'OPD' | 'IPD' | 'DOCTORS' | 'TELECONSULT' | 'ANALYTICS'>('OPD');
+  const [activeTab, setActiveTab] = useState<'OPD' | 'DOCTORS'>('OPD');
 
   // Navigation & Settings
   const [portal, setPortal] = useState<PortalType>('hospital');
