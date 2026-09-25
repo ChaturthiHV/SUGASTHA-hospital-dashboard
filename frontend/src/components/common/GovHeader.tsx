@@ -50,9 +50,9 @@ export const GovHeader: React.FC = () => {
       </div>
 
       {/* Main Header Bar */}
-      <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between gap-3">
+      <div className="max-w-7xl mx-auto px-4 py-2.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
         {/* Logo & Platform Title */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 min-w-0 flex-shrink-0">
           <div className="relative flex-shrink-0">
             <img
               src="/logo.png"
@@ -60,32 +60,32 @@ export const GovHeader: React.FC = () => {
               className="h-10 w-auto object-contain"
             />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-black tracking-tight text-slate-900 flex items-center gap-1.5">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xl font-black tracking-tight text-slate-900 flex items-center gap-1.5 whitespace-nowrap">
                 SUGASTHA
                 <span className="text-amber-600 font-extrabold text-sm hidden md:inline">सुगस्था</span>
               </span>
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap">
                 <Activity className="w-2.5 h-2.5 mr-1 text-emerald-600 animate-pulse" />
                 ABDM CONNECTED
               </span>
             </div>
-            <p className="text-[11px] text-slate-500 font-medium hidden sm:block leading-tight">
+            <p className="text-[11px] text-slate-500 font-medium hidden sm:block leading-tight truncate">
               National Unified Healthcare Platform · MoHFW, Govt of India
             </p>
           </div>
         </div>
 
         {/* Center: Live Hospital Facility Switcher */}
-        <div className="hidden lg:flex items-center gap-2 bg-slate-50 border border-slate-200/90 rounded-xl px-3 py-1.5 hover:border-slate-300 transition-colors">
+        <div className="hidden lg:flex items-center gap-2 bg-slate-50 border border-slate-200/90 rounded-xl px-3 py-1.5 hover:border-slate-300 transition-colors flex-shrink-0 max-w-[260px]">
           <Building2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-          <div className="flex flex-col text-left">
+          <div className="flex flex-col text-left min-w-0">
             <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider leading-none">Active Command Facility</span>
             <select
               value={currentHospitalId}
               onChange={(e) => setCurrentHospitalId(e.target.value)}
-              className="bg-transparent text-xs font-bold text-slate-800 outline-none cursor-pointer pr-1 py-0.5"
+              className="bg-transparent text-xs font-bold text-slate-800 outline-none cursor-pointer pr-1 py-0.5 w-full truncate"
               aria-label="Select Hospital"
             >
               {hospitals.map((h) => (
@@ -99,14 +99,14 @@ export const GovHeader: React.FC = () => {
 
         {/* Fallback Alert Banner (when active) */}
         {activeFallback && (
-          <div className="flex items-center gap-2 bg-rose-50 border border-rose-300 px-3 py-1.5 rounded-xl text-rose-800 text-xs font-semibold animate-pulse shadow-sm">
-            <div className="w-2 h-2 rounded-full bg-rose-600 animate-ping" />
-            <span>Auto-Escalation: <strong>{activeFallback.secondsRemaining}s</strong></span>
+          <div className="w-full lg:w-auto order-last lg:order-none flex items-center gap-2 bg-rose-50 border border-rose-300 px-3 py-1.5 rounded-xl text-rose-800 text-xs font-semibold animate-pulse shadow-sm flex-shrink-0">
+            <div className="w-2 h-2 rounded-full bg-rose-600 animate-ping flex-shrink-0" />
+            <span className="truncate">Auto-Escalation: <strong>{activeFallback.secondsRemaining}s</strong></span>
           </div>
         )}
 
         {/* Right Action Bar */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 ml-auto">
           {/* Audio Alarm Toggle */}
           <button
             onClick={() => setSoundEnabled(prev => !prev)}
