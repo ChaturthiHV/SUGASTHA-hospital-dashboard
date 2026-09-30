@@ -26,6 +26,18 @@ from app.models.doctor import Doctor
 HOSPITAL_REQUIRED = ["id", "name", "hospital_type", "district", "state", "address", "latitude", "longitude"]
 DOCTOR_REQUIRED = ["id", "name", "specialty", "qualification", "room_no"]
 
+# The models carry demo defaults (a Delhi phone number, 4.8 rating, 45 slots...).
+# Any field missing from the JSON would silently pick those up, so set neutral
+# values explicitly instead. HospitalOut.phone must be a string, so no None.
+HOSPITAL_NEUTRAL = {"phone": "Not available", "rating": 0.0, "travel_cost_inr": 0}
+DOCTOR_NEUTRAL = {"rating": 0.0, "booked_slots": 0, "current_queue_length": 0}
+
+
+def _apply_neutral(obj, neutral):
+    for k, v in neutral.items():
+        if obj.get(k) in (None, "") or str(obj.get(k)).strip().upper() == "N/A":
+            obj[k] = v
+
 
 def _check(obj, required, label):
     missing = [k for k in required if obj.get(k) in (None, "")]
@@ -51,11 +63,7 @@ def _clean(model, data, label):
     skipped = sorted(k for k in data if k not in cols)
     if skipped:
         print(f"  (note: {label} '{data.get('id')}' skipping unknown fields: {skipped})")
-    out = {k: v for k, v in data.items() if k in cols}
-    for k, v in out.items():
-        if isinstance(v, str) and v.strip().upper() == "N/A":
-            out[k] = None
-    return out
+    return {k: v for k, v in data.items() if k in cols}
 
 
 def _upsert(db, model, data):
@@ -88,6 +96,7 @@ def main(path, force=False):
             doctors = [dict(d) for d in h.pop("doctors", [])]
             _check(h, HOSPITAL_REQUIRED, "Hospital")
             _check_coords(h)
+            _apply_neutral(h, HOSPITAL_NEUTRAL)
             h["departments"] = json.dumps(h.get("departments", []))
             h["doctor_ids"] = json.dumps([d["id"] for d in doctors])
             h = _clean(Hospital, h, "Hospital")
@@ -96,6 +105,7 @@ def main(path, force=False):
             for d in doctors:
                 _check(d, DOCTOR_REQUIRED, "Doctor")
                 d["hospital_id"] = h["id"]
+                _apply_neutral(d, DOCTOR_NEUTRAL)
                 d = _clean(Doctor, d, "Doctor")
                 print(f"  Doctor {d['name']}: {_upsert(db, Doctor, d)}")
         db.commit()
