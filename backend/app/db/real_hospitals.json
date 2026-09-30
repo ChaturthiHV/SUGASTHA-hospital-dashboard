@@ -1,0 +1,159 @@
+{
+    "_comment": "Hospital names are real government facilities in the Udupi district; coordinates are approximate town-level points, and doctor names, bed counts and room numbers are FICTIONAL placeholders. Verify and replace before real patient use.",
+    "hospitals": [
+        {
+            "id": "hosp-kundapura-taluk",
+            "name": "Taluk Government Hospital, Kundapura",
+            "hospital_type": "Government Taluk Hospital",
+            "district": "Udupi",
+            "state": "Karnataka",
+            "address": "Kundapura, Udupi District, Karnataka",
+            "latitude": 13.6262,
+            "longitude": 74.6930,
+            "phone": "N/A",
+            "emergency_available": true,
+            "total_beds": 100,
+            "icu_beds_available": 4,
+            "oxygen_beds_available": 15,
+            "opd_capacity": 400,
+            "opd_active_queue": 50,
+            "departments": [
+                "General Medicine",
+                "Pediatrics",
+                "Obstetrics & Gynaecology",
+                "Orthopedics"
+            ],
+            "doctors": [
+                {
+                    "id": "doc-kundapura-1",
+                    "name": "Dr. Ramesh Shetty",
+                    "specialty": "General Medicine",
+                    "qualification": "MBBS, MD",
+                    "experience_years": 14,
+                    "room_no": "OPD Room 1",
+                    "consultation_fee": 0,
+                    "opd_timing": "Mon-Sat, 9:00 AM - 1:00 PM"
+                },
+                {
+                    "id": "doc-kundapura-2",
+                    "name": "Dr. Sunitha Bhat",
+                    "specialty": "Pediatrics",
+                    "qualification": "MBBS, DCH",
+                    "experience_years": 9,
+                    "room_no": "OPD Room 2",
+                    "consultation_fee": 0,
+                    "opd_timing": "Mon-Sat, 9:00 AM - 1:00 PM"
+                },
+                {
+                    "id": "doc-kundapura-3",
+                    "name": "Dr. Anitha Poojary",
+                    "specialty": "Obstetrics & Gynaecology",
+                    "qualification": "MBBS, MS",
+                    "experience_years": 12,
+                    "room_no": "OPD Room 3",
+                    "consultation_fee": 0,
+                    "opd_timing": "Mon-Fri, 10:00 AM - 2:00 PM"
+                }
+            ]
+        },
+        {
+            "id": "hosp-byndoor-chc",
+            "name": "Community Health Centre (CHC), Byndoor",
+            "hospital_type": "Government CHC",
+            "district": "Udupi",
+            "state": "Karnataka",
+            "address": "Byndoor, Udupi District, Karnataka",
+            "latitude": 13.8660,
+            "longitude": 74.6310,
+            "phone": "N/A",
+            "emergency_available": true,
+            "total_beds": 30,
+            "icu_beds_available": 0,
+            "oxygen_beds_available": 5,
+            "opd_capacity": 200,
+            "opd_active_queue": 25,
+            "departments": [
+                "General Medicine",
+                "Emergency Medicine"
+            ],
+            "doctors": [
+                {
+                    "id": "doc-byndoor-1",
+                    "name": "Dr. Prakash Naik",
+                    "specialty": "General Medicine",
+                    "qualification": "MBBS",
+                    "experience_years": 8,
+                    "room_no": "OPD Room 1",
+                    "consultation_fee": 0,
+                    "opd_timing": "Mon-Sat, 9:00 AM - 1:00 PM"
+                },
+                {
+                    "id": "doc-byndoor-2",
+                    "name": "Dr. Divya Hegde",
+                    "specialty": "Emergency Medicine",
+                    "qualification": "MBBS, MD",
+                    "experience_years": 6,
+                    "room_no": "Casualty",
+                    "consultation_fee": 0,
+                    "opd_timing": "Open 24 hours"
+                }
+            ]
+        },
+        {
+            "id": "hosp-udupi-district",
+            "name": "District Government Hospital, Udupi",
+            "hospital_type": "Government District Hospital",
+            "district": "Udupi",
+            "state": "Karnataka",
+            "address": "Udupi, Udupi District, Karnataka",
+            "latitude": 13.3409,
+            "longitude": 74.7421,
+            "phone": "N/A",
+            "emergency_available": true,
+            "total_beds": 250,
+            "icu_beds_available": 12,
+            "oxygen_beds_available": 40,
+            "opd_capacity": 1000,
+            "opd_active_queue": 150,
+            "departments": [
+                "General Medicine",
+                "Cardiology",
+                "Orthopedics",
+                "Emergency Medicine",
+                "Pediatrics"
+            ],
+            "doctors": [
+                {
+                    "id": "doc-udupi-1",
+                    "name": "Dr. Mahesh Kamath",
+                    "specialty": "Cardiology",
+                    "qualification": "MBBS, MD, DM",
+                    "experience_years": 18,
+                    "room_no": "OPD Room 5",
+                    "consultation_fee": 0,
+                    "opd_timing": "Mon-Sat, 9:00 AM - 1:00 PM"
+                },
+                {
+                    "id": "doc-udupi-2",
+                    "name": "Dr. Suresh Acharya",
+                    "specialty": "Orthopedics",
+                    "qualification": "MBBS, MS Ortho",
+                    "experience_years": 15,
+                    "room_no": "OPD Room 8",
+                    "consultation_fee": 0,
+                    "opd_timing": "Mon-Sat, 9:00 AM - 1:00 PM"
+                },
+                {
+                    "id": "doc-udupi-3",
+                    "name": "Dr. Kavitha Rao",
+                    "specialty": "Pediatrics",
+                    "qualification": "MBBS, MD",
+                    "experience_years": 11,
+                    "room_no": "OPD Room 4",
+                    "consultation_fee": 0,
+                    "opd_timing": "Mon-Sat, 9:00 AM - 1:00 PM"
+                }
+            ]
+        }
+    ]
+}
